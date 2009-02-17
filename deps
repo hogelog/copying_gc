@@ -1,0 +1,2 @@
+gc.o: gc.c gc.h
+main.o: main.c gc.h
