@@ -93,7 +93,6 @@ Object fixed_memory_alloc(Memory *mem) {
     Array *heap = mem->heap;
     if(heap->current+1 >= heap->tail) {
         size_t freed = fixed_memory_sweep(mem);
-        printf("%d\n", freed);
         if(freed == 0) {
             fprintf(stderr, "heap overflow\n");
             return NULL;
