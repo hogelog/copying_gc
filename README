@@ -1,1 +1,4 @@
-simple copying gc(enable only fixed size heap and stack)
+This is a simple copying GC project.
+Now, this GC use only fixed size heap and stack area.
+
+These codes is under the public domain.
