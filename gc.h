@@ -1,7 +1,6 @@
 
 #define TYPE(obj) ((obj)->type)
 #define VALUE(obj) ((obj)->value)
-#define FORWARD(obj) ((obj)->forward)
 #define OBJECT_SET(obj,t,m,v) do {\
     TYPE(obj) = (t);\
     VALUE(obj).m = (v);\
@@ -30,6 +29,8 @@
     PAIR_CAR(obj) = a;\
     PAIR_CDR(obj) = d;\
 } while (0)
+#define FORWARD(obj) (VALUE(obj).forward)
+#define FORWARD_SET(obj,v) OBJECT_SET(obj,T_FORWARD,forward,v)
 
 typedef struct String String;
 typedef struct Pair Pair;
@@ -48,18 +49,18 @@ struct Pair {
 };
 enum Type {
     T_INT, T_FLOAT, T_STR,
-    T_PAIR
+    T_PAIR, T_FORWARD
 };
 union Value {
     long ivalue;
     double fvalue;
     String str;
     Pair pair;
+    Object forward;
 };
 struct Object {
     Type type;
     Value value;
-    Object forward;
 };
 struct Array {
     size_t size;

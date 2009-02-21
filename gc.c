@@ -38,12 +38,11 @@ Memory *fixed_memory_init(Memory *mem, size_t hsize, size_t ssize) {
 }
 /* Cheney compacting Algorithm */
 #define COPY_TO(obj) do {\
-    if(FORWARD(obj)==NULL) {\
-        Object *forward = &FORWARD(obj);\
-        obj = fixed_array_push(to, obj);\
-        *forward = obj;\
-    } else {\
+    if(TYPE(obj)==T_FORWARD) {\
         obj = FORWARD(obj);\
+    } else {\
+        Object new = fixed_array_push(to, obj);\
+        FORWARD_SET(obj,new);\
     }\
 } while (0)
 static void copy_space(Array *from, Array *to) {
@@ -68,11 +67,6 @@ size_t fixed_memory_sweep(Memory *mem) {
 
     to->current = to->head;
 
-    scanned = from->head;
-    while(scanned!=from->current) {
-        FORWARD(scanned) = NULL;
-        ++scanned;
-    }
     /* copy object referenced from stack */
     copy_space(stack, to);
     
@@ -80,8 +74,8 @@ size_t fixed_memory_sweep(Memory *mem) {
 
     scanned = from->head;
     while(scanned!=from->current) {
-        if(FORWARD(scanned)==NULL && TYPE(scanned)==T_STR) {
-                free(STR_BUF(scanned));
+        if(TYPE(scanned)==T_STR) {
+            free(STR_BUF(scanned));
         }
         ++scanned;
     }
