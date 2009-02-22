@@ -64,16 +64,23 @@ size_t fixed_memory_sweep(Memory *mem) {
     Array *from = mem->heap;
     Array *to = from==&mem->h1 ? &mem->h2 : &mem->h1;
     Object scanned;
+    size_t from_size, to_size;
 
+    from_size = from->current - from->head;
     to->current = to->head;
 
-    /* copy object referenced from stack */
+    /* copy objects referenced by root set(stack-space). */
     copy_space(stack, to);
-    
+
+    /* to-space has gray color objects.
+     * copy objects referenced by gray color objects. */
     copy_space(to, to);
+
+    to_size = to->current - to->head;
 
     scanned = from->head;
     while(scanned!=from->current) {
+        /* obj is garbage if TYPE(obj)!=T_FORWARD */
         if(TYPE(scanned)==T_STR) {
             free(STR_BUF(scanned));
         }
@@ -81,7 +88,8 @@ size_t fixed_memory_sweep(Memory *mem) {
     }
 
     mem->heap = to;
-    return (from->current-from->head) - (to->current-to->head);
+
+    return from_size - to_size;
 }
 Object fixed_memory_alloc(Memory *mem) {
     Array *heap = mem->heap;
